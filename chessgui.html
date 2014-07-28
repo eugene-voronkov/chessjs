@@ -1,0 +1,265 @@
+<html>
+
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="chess.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+	var size;
+	if( $(window).width() > $(window).height() ) {
+		size = $(window).height();
+	}
+	else {
+		size = $(window).width();
+	}
+
+//console.log($("td").width( size / 8 ));
+//console.log($("td").height( size / 8 ));
+
+$(window).resize(function(){
+	if( $(window).width() > $(window).height() ) {
+		size = $(window).height();
+	}
+	else {
+		size = $(window).width();
+	}	
+	console.log($("td").width( size / 8 ));
+	console.log($("td").height( size / 8 ));
+	$("div").css("font-size", size / 8 - 30);
+});
+
+
+
+
+var populateGUI = function(board) {
+	var row = 0;
+	var column = "A";
+	for(row=1; row<=8; ++row) {
+		for(column="A"; column != "I"; column = nextChar(column) ) {
+			var piece = board.getPiece( column + row );
+			if( typeof piece != "undefined" ) {
+				var color = piece.color;
+				var position = piece.xPos + piece.yPos;
+				var pieceFont = CHESSFONT[piece.color + piece.name];
+				$("#"+position).append( "<div class="+color+">" + pieceFont + "</div>" );
+			}
+		}
+	}	
+}
+
+var board = new Board("white");
+board.newGame();
+
+populateGUI( board );
+
+
+
+var pawnToQueen = function(position) {
+	var piece = board.getPiece(position);
+
+	if( piece.name == "queen" ) {
+		if( piece.color == "white" && piece.yPos == 8 ||
+			piece.color == "black" && piece.yPos == 1 ) {
+			var pieceFont = CHESSFONT[piece.color + "queen"];
+		$("#"+position).html( "<div class="+piece.color+">" + pieceFont + "</div>" );				
+	}
+}
+}
+
+
+var selectedPiece;
+var selected = false;
+var locaitonFrom;
+var locationTo;
+
+$("td").click(function() {
+	var location = $(this).attr("id");
+
+	if( selected == false ) {
+		if( board.getPiece(location) != undefined ) {
+			var testVar = board.getPiece(location);
+			$("#debug").append("from " + location);
+			selected = true;
+			selectedPiece = $(this).children("." + board.color)
+			locationFrom = location;
+			
+		}
+	}
+	else {
+		selected = false;
+		locationTo = location;
+		if( locationFrom != locationTo ) {	
+			var testVar = board.validMove( locationFrom, locationTo);
+			$("#debug").append(" to ");			
+			if( board.validMove( locationFrom, locationTo) ) {
+				if(board.move(locationFrom, locationTo)) {
+					$("#debug").append(locationTo + "<br>");
+					$(this).html( selectedPiece );
+					pawnToQueen( locationTo );
+					if( board.color == "white" )
+						board.color = "black";
+					else
+						board.color = "white";
+					
+				}
+			}
+			
+		}
+	}
+});	
+
+});
+
+</script>
+
+
+<style media="screen" type="text/css">
+#body {
+	background: #2C3E50;
+}
+#chess_board div {
+	color:#000;
+	display:block;
+	font-size:60px;
+	//height:80px;
+	position:relative;
+	text-decoration:none;
+	text-shadow:0 1px #fff;
+	//width:80px;
+}		
+
+/*			
+a {
+	color:#000;
+	display:block;
+	font-size:60px;
+	height:80px;
+	position:relative;
+	text-decoration:none;
+	text-shadow:0 1px #fff;
+	width:80px;
+}
+*/
+#chess_board { //border:5px solid #333; }
+#chess_board td {
+	//background:#fff;
+	background: #ECF0F1;
+	//background:-moz-linear-gradient(top, #fff, #eee);
+	//background:-webkit-gradient(linear,0 0, 0 100%, from(#fff), to(#eee));
+	//box-shadow:inset 0 0 0 1px #fff;
+	//-moz-box-shadow:inset 0 0 0 1px #fff;
+	//-webkit-box-shadow:inset 0 0 0 1px #fff;
+	height:80px;
+	text-align:center;
+	vertical-align:middle;
+	width:80px;
+}
+#chess_board tr:nth-child(odd) td:nth-child(even),
+#chess_board tr:nth-child(even) td:nth-child(odd) {
+	//background:#ccc;
+	background: #BDC3C7;
+	//background:-moz-linear-gradient(top, #ccc, #eee);
+	//background:-webkit-gradient(linear,0 0, 0 100%, from(#ccc), to(#eee));
+	//box-shadow:inset 0 0 10px rgba(0,0,0,.4);
+	//-moz-box-shadow:inset 0 0 10px rgba(0,0,0,.4);
+	//-webkit-box-shadow:inset 0 0 10px rgba(0,0,0,.4);
+}
+						
+</style>
+</head>
+
+
+<body id="body">
+<center>
+<table id="chess_board" cellpadding="0" cellspacing="0">
+	<tr>
+		<td id="A8"></td>
+		<td id="B8"></td>
+		<td id="C8"></td>
+		<td id="D8"></td>
+		<td id="E8"></td>
+		<td id="F8"></td>
+		<td id="G8"></td>
+		<td id="H8"></td>
+	</tr>
+	<tr>
+		<td id="A7"></td>
+		<td id="B7"></td>
+		<td id="C7"></td>
+		<td id="D7"></td>
+		<td id="E7"></td>
+		<td id="F7"></td>
+		<td id="G7"></td>
+		<td id="H7"></td>
+	</tr>
+	<tr>
+		<td id="A6"></td>
+		<td id="B6"></td>
+		<td id="C6"></td>
+		<td id="D6"></td>
+		<td id="E6"></td>
+		<td id="F6"></td>
+		<td id="G6"></td>
+		<td id="H6"></td>
+	</tr>
+	<tr>
+		<td id="A5"></td>
+		<td id="B5"></td>
+		<td id="C5"></td>
+		<td id="D5"></td>
+		<td id="E5"></td>
+		<td id="F5"></td>
+		<td id="G5"></td>
+		<td id="H5"></td>
+	</tr>
+	<tr>
+		<td id="A4"></td>
+		<td id="B4"></td>
+		<td id="C4"></td>
+		<td id="D4"></td>
+		<td id="E4"></td>
+		<td id="F4"></td>
+		<td id="G4"></td>
+		<td id="H4"></td>
+	</tr>
+	<tr>
+		<td id="A3"></td>
+		<td id="B3"></td>
+		<td id="C3"></td>
+		<td id="D3"></td>
+		<td id="E3"></td>
+		<td id="F3"></td>
+		<td id="G3"></td>
+		<td id="H3"></td>
+	</tr>
+	<tr>
+		<td id="A2"></td>
+		<td id="B2"></td>
+		<td id="C2"></td>
+		<td id="D2"></td>
+		<td id="E2"></td>
+		<td id="F2"></td>
+		<td id="G2"></td>
+		<td id="H2"></td>
+	</tr>
+	<tr>
+		<td id="A1"></td>
+		<td id="B1"></td>
+		<td id="C1"></td>
+		<td id="D1"></td>
+		<td id="E1"></td>
+		<td id="F1"></td>
+		<td id="G1"></td>
+		<td id="H1"></td>
+	</tr>
+</table>
+</center>
+
+<div id="debug">
+DEBUG:<BR>
+</div>
+</body>
+
+</html>
